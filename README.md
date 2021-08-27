@@ -9,7 +9,7 @@ Some data analysis exercises were done, using Python () & SQL (), including:
   - Calculate Bayes average
   - etc.
 
-Data visualization dashboard is created with Microsoft Power BI ()
+Data visualization dashboard is created with Microsoft Power BI (imdb-top-movies-dashboard.pbix)
 
 Future planing for project:
   - Futher data analysis in Python with matplotlib, seaborn, etc.
