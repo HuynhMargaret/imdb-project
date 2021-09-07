@@ -7,7 +7,7 @@ Data sources including:
 
 Some data analysis exercises were done, using Python (data_analysis_python.py) & SQL (data_analysis_sql.txt), including:
   - Calculate Bayesian average rating (source: https://www.codementor.io/@arpitbhayani/solving-an-age-old-problem-using-bayesian-average-15fy4ww08p)
-  - Find all years that have a movie that received a rating of 9 and above
+  - Find all years that have a movie that received a rating of 9.0 and above
   - Find the difference between the average rating of movies released before 1980 and the average rating of movies released after 1980 (Answer: Older movies are rated better)
   - More to come...
 
