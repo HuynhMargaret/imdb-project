@@ -1,10 +1,5 @@
 
 # coding: utf-8
-
-# In[1]:
-
-
-
 import pandas as pd, numpy as np
 
 # Read recipe inputs
@@ -15,9 +10,6 @@ df_basics = pd.read_csv('titlebasics.tsv', sep='\t')
 df_principals = pd.read_csv('titlepincipals.tsv', sep='\t')
 
 df_namebasics = pd.read_csv('namebasics.tsv', sep='\t')
-
-
-# In[2]:
 
 
 #bayes mean for movies' rating (Oscars' rule - yearly, no differentiation in genres)
@@ -35,18 +27,12 @@ df_1['avg_bayes_rating'] = df_1['w']*df_1['averageRating'] + (1 - df_1['w'])*df_
 df_1.head()
 
 
-# In[3]:
-
-
 #Favorite director: Find the titles of all movies directed by Steven Spielberg
 df_director = df_principals[df_principals['category']=='director']
 df_directorname = pd.merge(df_director, df_namebasics, on="nconst")
 df_2 = pd.merge(df_1, df_directorname, on="tconst")
 df_favdirector = df_2[df_2['primaryName']=='Steven Spielberg']
 df_favdirector.head()
-
-
-# In[4]:
 
 
 #What were some good years for movies? Find all years that have a movie that received a rating of 9 and above, and sort them in increasing order.
@@ -57,18 +43,12 @@ print(good_years)
 len(good_years)
 
 
-# In[5]:
-
-
 #Busy directors: Some directors directed more than one movie. For all such directors, return the titles of all movies directed by them, as well as the director name. Sort by director name, then movie title.
 avgmoviedirect = df_2['primaryName'].value_counts().mean()
 df_4 = df_2
 df_4['movieDirected'] = df_4.primaryName.groupby(df_4.primaryName).transform('count')
 df_4 = df_4[df_4['movieDirected']>avgmoviedirect]
 df_4.head()
-
-
-# In[6]:
 
 
 #Are older movies better-rated? Find the difference between the average rating of movies released before 1980 and the average rating of movies released after 1980
