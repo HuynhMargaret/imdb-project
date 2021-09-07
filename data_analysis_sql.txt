@@ -1,0 +1,106 @@
+#bayes mean for movies' rating (Oscars' rule - yearly, no differentiation in genres)
+WITH df_1 AS (SELECT 
+    `titleratings`.`tconst`,
+    `titleratings`.`averageRating`,
+    `titleratings`.`numVotes`,
+    `titlebasics`.`titleType`,
+    `titlebasics`.`primaryTitle`,
+    `titlebasics`.`originalTitle`,
+    `titlebasics`.`startYear`,
+    `titlebasics`.`endYear`,
+    `titlebasics`.`runtimeMinutes`,
+    `titlebasics`.`genres`
+  FROM `titleratings`
+  INNER JOIN `titlebasics`
+  ON `titleratings`.`tconst` = `titlebasics`.`tconst`
+  WHERE (`titlebasics`.`titleType` = 'movie'
+         AND `titlebasics`.`startYear` NOT LIKE "%\N%"
+         AND `titlebasics`.`genres` NOT LIKE '%Documentary%'
+         AND `titlebasics`.`genres` NOT LIKE "%\N%")
+  ),
+  df_numVotes_annual AS (SELECT
+    AVG(`df_1`.`numVotes`) AS numVotes_annual,
+    `df_1`.`startYear`
+  FROM `df_1`
+  GROUP BY `df_1`.`startYear`
+  ),
+  df_annual_avgrating AS (SELECT
+    AVG(`df_1`.`averageRating`) AS averageRating_annual,
+    `df_1`.`startYear`
+  FROM `df_1`
+  GROUP BY `df_1`.`startYear`
+  )
+SELECT 
+    `df_1`.`tconst`,
+    `df_1`.`averageRating`,
+    `df_1`.`numVotes`,
+    `df_1`.`titleType`,
+    `df_1`.`primaryTitle`,
+    `df_1`.`originalTitle`,
+    `df_1`.`startYear`,
+    `df_1`.`endYear`,
+    `df_1`.`runtimeMinutes`,
+    `df_1`.`genres`,
+    `df_numVotes_annual`.`numVotes_annual`,
+    `df_annual_avgrating`.`averageRating_annual`,
+    (((`df_1`.`numVotes`) / (`df_1`.`numVotes` + `df_numVotes_annual`.`numVotes_annual`)) * `df_1`.`averageRating`) + ((1 - ((`df_1`.`numVotes`) / (`df_1`.`numVotes` + `df_numVotes_annual`.`numVotes_annual`)))*`df_annual_avgrating`.`averageRating_annual`) AS `avg_bayes_rating`
+  FROM df_1
+  INNER JOIN `df_numVotes_annual`
+  ON `df_1`.`startYear` = `df_numVotes_annual`.`startYear`
+  INNER JOIN `df_annual_avgrating`
+  ON `df_1`.`startYear` = `df_annual_avgrating`.`startYear`
+
+
+
+#Favorite director: Find the titles of all movies directed by Steven Spielberg
+SELECT `mh_me_project_title_sql`.*,
+      `titleprincipals`.`nconst`,
+      `titleprincipals`.`category`,
+      `namebasics`.`primaryName`
+FROM `titleprincipals`
+INNER JOIN `namebasics` ON `titleprincipals`.`nconst` = `namebasics`.`nconst`
+INNER JOIN `mh_me_project_title_sql` ON `titleprincipals`.`tconst` = `mh_me_project_title_sql`.`tconst`
+WHERE (`titleprincipals`.`category` = "director"
+       AND `namebasics`.`primaryName` = "Steven Spielberg")
+
+
+
+#What were some good years for movies? Find all years that have a movie that received a rating of 9 and above, and sort them in increasing order
+SELECT DISTINCT `mh_me_project_title_sql`.`startYear`
+  FROM `dataiku`.`mh_me_project_title_sql`
+  WHERE `mh_me_project_title_sql`.`avg_bayes_rating`>=9.0
+  ORDER BY `mh_me_project_title_sql`.`startYear` ASC
+
+
+
+#Busy directors: Some directors directed more than average number of movies. For all such directors, return the titles of all movies directed by them, as well as the director name. Sort by director name, then movie title
+WITH df_director AS (SELECT `mh_me_project_title_sql`.*,
+      `titleprincipals`.`nconst`,
+      `titleprincipals`.`category`,
+      `namebasics`.`primaryName`
+    FROM `titleprincipals`
+    INNER JOIN `namebasics` ON `titleprincipals`.`nconst` = `namebasics`.`nconst`
+    INNER JOIN `mh_me_project_title_sql` ON `titleprincipals`.`tconst` = `mh_me_project_title_sql`.`tconst`
+    WHERE (`titleprincipals`.`category` = "director")),
+     df_director_count AS (SELECT 
+      `df_director`.`nconst`,
+      COUNT(`df_director`.`nconst`) AS `film_count`
+      FROM `df_director`
+      GROUP BY `df_director`.`nconst`                  
+      )
+SELECT `df_director`.*,
+       `df_director_count`.`film_count`
+FROM `df_director`
+INNER JOIN `df_director_count` ON `df_director`.`nconst` = `df_director_count`.`nconst`
+WHERE `df_director_count`.`film_count` >= (SELECT AVG(`df_director_count`.`film_count`) FROM `df_director_count`)
+
+
+
+#Are older movies better-rated? Find the difference between the average rating of movies released before 1980 and the average rating of movies released after
+SELECT AVG(`avg_bayes_rating`)
+  FROM `dataiku`.`mh_me_project_title_sql`
+  WHERE `mh_me_project_title_sql`.`startYear`<1980
+
+SELECT AVG(`avg_bayes_rating`)
+  FROM `dataiku`.`mh_me_project_title_sql`
+  WHERE `mh_me_project_title_sql`.`startYear`>=1980
