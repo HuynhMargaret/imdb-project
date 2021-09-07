@@ -14,5 +14,5 @@ Some data analysis exercises were done, using Python (data_analysis_python.py) &
 Data visualization dashboard is created with Microsoft Power BI (imdb-top-movies-dashboard.pbix)
 
 Future planning for project:
-  - Futher data analysis in Python with matplotlib, seaborn, etc.
+  - Further data analysis in Python with matplotlib, seaborn, etc.
   - Explore data modelling of movie information (plot, genres, cast, etc.) to recommend good movies, with ambition to learn and apply Natural Language Processing & Machine Learning frameworks
