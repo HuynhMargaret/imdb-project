@@ -11,7 +11,7 @@ Some data analysis exercises were done, using Python (data_analysis_python.py) &
   - Find the difference between the average rating of movies released before 1980 and the average rating of movies released after 1980 (Answer: Older movies are rated better)
   - More to come...
 
-Data visualization dashboard is created with Microsoft Power BI (imdb-top-movies-dashboard.pbix)
+Data visualization dashboard is created with Microsoft Power BI (imdb-top-movies-dashboard.pbix - with introduction file Margaret’s imdb project introduction.pdf)
 
 Future planning for project:
   - Further data analysis in Python with matplotlib, seaborn, etc.
